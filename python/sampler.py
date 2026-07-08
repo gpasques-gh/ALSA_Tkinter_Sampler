@@ -13,6 +13,9 @@ class SamplerClient:
     def set_pitch(self, idx, pitch):
         self.sock.sendall(f"SET_PITCH {idx} {pitch}\n".encode())
 
+    def add_sample(self, sample_name, file_name):
+        self.sock.sendall(f"ADD_SAMPLE {sample_name} {file_name}\n".encode())
+
     def status(self):
         self.sock.sendall(b"STATUS\n")
         return self.sock.recv(4096).decode()
@@ -22,10 +25,12 @@ client = SamplerClient()
 
 root = tk.Tk()
 
-button = tk.Button(root, text="Kick", width=25, command=lambda:client.trigger(5, 127))
-button_pitch = tk.Button(root, text="Kick_pitch", width=25, command=lambda:client.set_pitch(5, -0.1))
-button_pitch_up = tk.Button(root, text="Pitch up", width=25, command=lambda:client.set_pitch(5, 0.1))
-button.pack()
-button_pitch.pack()
-button_pitch_up.pack()
+textbox_filename = tk.Entry(root, width=25)
+textbox_samplename = tk.Entry(root, width=25)
+button_add_sample = tk.Button(root, text="Add sample", width=25, command=lambda:client.add_sample(textbox_samplename.get(), textbox_filename.get()))
+
+textbox_samplename.pack()
+textbox_filename.pack()
+button_add_sample.pack()
+
 root.mainloop()

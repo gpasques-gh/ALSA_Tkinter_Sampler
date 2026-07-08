@@ -22,51 +22,9 @@
 
 int main(int argc, char *argv[])
 {
-
-    /* Initializing the samples */
-    /* Kick sample */
-    sample_t sample_kick;
-    uint8_t init_res = init_sample(&sample_kick, "Kick", "audio/kick.wav");
-    if (init_res) return 1;
-
-    /* Snare sample */
-    sample_t sample_snare;
-    init_res = init_sample(&sample_snare, "Snare", "audio/snare.wav");
-    if (init_res) return 1;
-    
-    /* Hi-hat sample */
-    sample_t sample_hat;
-    init_res = init_sample(&sample_hat, "Hat", "audio/hat.wav");
-    if (init_res) return 1;
-
-    sample_t sample_perc;
-    init_res = init_sample(&sample_perc, "Perc", "audio/perc.wav");
-    if (init_res) return 1;
-
-    sample_t sample_hat2;
-    init_res = init_sample(&sample_hat2, "Hat2", "audio/hat2.wav");
-    if (init_res) return 1;
-
-    sample_t sample_guitar;
-    init_res = init_sample(&sample_guitar, "Guitar", "audio/guitar.wav");
-    if (init_res) return 1;
-
-    sample_t sample_test;
-    init_res = init_sample(&sample_test, "Test", "audio/test.wav");
-    if (init_res) return 1;
-
-    
-    /* Adding the samples to the sampler */
+    /* Initializing the sampler */
     sampler_t sampler;
-    init_res = init_sampler(&sampler);
-    if (init_res) return 1;
-    add_sample(&sampler, &sample_kick);
-    add_sample(&sampler, &sample_snare);
-    add_sample(&sampler, &sample_hat);
-    add_sample(&sampler, &sample_hat2);
-    add_sample(&sampler, &sample_perc);
-    add_sample(&sampler, &sample_guitar);
-    add_sample(&sampler, &sample_test);
+    init_sampler(&sampler);
     
     /* Initializing the ALSA PCM*/
     snd_pcm_t *pcm;

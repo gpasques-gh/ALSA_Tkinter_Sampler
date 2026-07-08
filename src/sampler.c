@@ -77,6 +77,11 @@ uint8_t init_sampler(sampler_t *sampler)
 {
     sampler->samples = malloc(sizeof(sample_t *) * SAMPLES);
     if (!sampler->samples) return 1;
+    for (uint8_t i = 0; i < SAMPLES; i++)
+    {
+        sampler->samples[i] = malloc(sizeof(sample_t));
+        if (!sampler->samples[i]) return 1;
+    }
     sampler->sample_count = 0;
     sampler->global_pitch = 24;
     return 0;

@@ -27,12 +27,15 @@ int control_socket_open(const char *path)
     addr.sun_family = AF_UNIX;
     strncpy(addr.sun_path, path, sizeof(addr.sun_path) - 1);
 
-    if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0) {
+    if (bind(fd, (struct sockaddr *) &addr, sizeof(addr)) < 0)
+    {
         perror("bind");
         close(fd);
         return -1;
     }
-    if (listen(fd, 1) < 0) {
+
+    if (listen(fd, 1) < 0) 
+    {
         perror("listen");
         close(fd);
         return -1;
@@ -47,7 +50,8 @@ void control_socket_accept(int listen_fd, int *client_fd)
     if (*client_fd >= 0) return; /* already have a client */
 
     int fd = accept(listen_fd, NULL, NULL);
-    if (fd < 0) {
+    if (fd < 0) 
+    {
         if (errno != EAGAIN && errno != EWOULDBLOCK)
             perror("accept");
         return;
@@ -69,7 +73,8 @@ static void handle_gui_command(char *line, sampler_t *sampler,
 
     if (sscanf(line, "%31s", verb) != 1) return;
 
-    if (strcmp(verb, "TRIGGER") == 0) {
+    if (strcmp(verb, "TRIGGER") == 0)
+    {
         int velocity = 127;
         if (sscanf(line, "%*s %d %d", &idx, &velocity) < 1) return;
         if (idx < 0 || idx >= sampler->sample_count) return;
@@ -78,14 +83,16 @@ static void handle_gui_command(char *line, sampler_t *sampler,
         s->snd_buffer_pos = 0.0f;
         s->velocity = (uint8_t) velocity;
         s->active = 1;
-
-    } else if (strcmp(verb, "SET_PITCH") == 0) {
+    } 
+    else if (strcmp(verb, "SET_PITCH") == 0) 
+    {
         float fval = 1.0f;
         if (sscanf(line, "%*s %d %f", &idx, &fval) != 2) return;
         if (idx < 0 || idx >= sampler->sample_count) return;
         sampler->samples[idx]->pitch += fval;
-
-    } else if (strcmp(verb, "STATUS") == 0) {
+    } 
+    else if (strcmp(verb, "STATUS") == 0) 
+    {
         size_t off = 0;
         for (uint8_t i = 0; i < sampler->sample_count && off < reply_len; i++) {
             sample_t *s = sampler->samples[i];
@@ -93,6 +100,15 @@ static void handle_gui_command(char *line, sampler_t *sampler,
                              "%s:%d ", s->sample_name, s->active);
         }
         if (off < reply_len) reply[off++] = '\n';
+    }
+    else if (strcmp(verb, "ADD_SAMPLE") == 0)
+    {
+        if (sampler->sample_count >= SAMPLES) return;
+        char file_name[256];
+        char sample_name[256];
+        if (sscanf(line, "%*s %255s %255s", &sample_name, &file_name) != 2) return;
+        uint8_t res = init_sample(sampler->samples[sampler->sample_count], sample_name, file_name);
+        if (!res) sampler->sample_count++;
     }
     /* unrecognized verbs are silently ignored */
 }
