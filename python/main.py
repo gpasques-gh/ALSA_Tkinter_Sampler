@@ -36,11 +36,11 @@ client = SamplerClient()
 midi_handler = MidiHandler(4, client)
 
 # Adding some test samples (TO REMOVE)
-client.add_sample("kick", "audio/kick.wav")
-client.add_sample("snare", "audio/snare.wav")
-client.add_sample("hat", "audio/hat.wav")
-client.add_sample("guitar", "audio/guitar.wav")
-client.add_sample("bass", "audio/bass.wav")
+client.add_sample("kick", "audio_files/kick.wav")
+client.add_sample("snare", "audio_files/snare.wav")
+client.add_sample("hat", "audio_files/hat.wav")
+client.add_sample("guitar", "audio_files/guitar.wav")
+client.add_sample("bass", "audio_files/bass.wav")
 
 # Creating the Tkinter window
 root = tk.Tk()

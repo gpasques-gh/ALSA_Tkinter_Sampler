@@ -20,14 +20,18 @@ CFLAGS = -Wall -Wextra -O2 -I$(INC_DIR) -I/usr/include/libxml2 -MMD -MP
 LDFLAGS = -lasound -lm -lraylib -lxml2 -lX11
 
 CONTROLLER = DEFAULT
-
 ifeq ($(CONTROLLER), AKAI_MPK)
 CFLAGS += -DAKAI_MPK_PADS
 endif
 
-INPUT=MIDI_INPUT
+# Input method 
+INPUT=PYSOCK_INPUT
 ifeq ($(INPUT), KB_INPUT)
 CFLAGS += -DKB_INPUT
+else ifeq ($(INPUT), MIDI_INPUT)
+CFLAGS += -DMIDI_INPUT
+else
+CFLAGS += -DPYSOCK_INPUT
 endif
 
 # Default

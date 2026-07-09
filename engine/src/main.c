@@ -13,16 +13,7 @@
 #include "keyboard.h"
 #include "control_socket.h"
 
-#define DEVICE "default"
-
-#define KB      1
-#define MIDI    2
-
-#if KB_INPUT
-    #define INPUT KB
-#else
-    #define INPUT MIDI
-#endif
+#define DEVICE "default" 
 
 int main(int argc, char *argv[])
 {
@@ -56,72 +47,53 @@ int main(int argc, char *argv[])
     snd_pcm_hw_params(pcm, params);
 
     /* Initializing the MIDI input */
-    snd_rawmidi_t *midi_in;
-    if (INPUT == MIDI)
+    #if MIDI_INPUT
+        snd_rawmidi_t *midi_in;
         snd_rawmidi_open(&midi_in, NULL, "hw:4,0,0", SND_RAWMIDI_NONBLOCK);
+    #endif
 
     /* Initializing the sound buffer */
     uint32_t alsa_buffer_size = FRAMES * channels;
     int32_t buffer[alsa_buffer_size];
 
-    int control_listen_fd = control_socket_open("/tmp/sampler.sock");
-    int control_client_fd = -1;
-    if (control_listen_fd < 0) return 1;
+    /* Communication with the Python socket */
+    #if PYSOCK_INPUT
+        int control_listen_fd = control_socket_open("/tmp/sampler.sock");
+        int control_client_fd = -1;
+        if (control_listen_fd < 0) return 1;
+    #endif
     
-
     /* Infinite loop */
     while (1) 
     {
-        /* Getting the MIDI input from the controller */
-        if (INPUT == MIDI)
+        #if MIDI_INPUT
             get_midi(midi_in, &sampler);
-        else if (INPUT == KB)
-        {
+        #elif KB_INPUT
             init_kb();
+            char c;
             if (kbhit())
             {
-                char c = getch();
-                if (c == 'q')
+                switch (c = getch())
                 {
-                    sampler.samples[0]->active = 1;
-                    sampler.samples[0]->snd_buffer_pos = 0.0f;
-                }
-                else if (c == 's')
-                {
-                    sampler.samples[1]->active = 1;
-                    sampler.samples[1]->snd_buffer_pos = 0.0f;
-                }
-                else if (c == 'd')
-                {
-                    sampler.samples[2]->active = 1;
-                    sampler.samples[2]->snd_buffer_pos = 0.0f;
-                }
-                else if (c == 'f')
-                {
-                    sampler.samples[3]->active = 1;
-                    sampler.samples[3]->snd_buffer_pos = 0.0f;
-                }
-                else if (c == 'g')
-                {
-                    sampler.samples[4]->active = 1;
-                    sampler.samples[4]->snd_buffer_pos = 0.0f;
-                }
-                else if (c == 'h')
-                {
-                    sampler.samples[5]->active = 1;
-                    sampler.samples[5]->snd_buffer_pos = 0.0f;
+                case 'q': sampler.samples[0]->active = 1; sampler.samples[0]->snd_buffer_pos = 0.0f; break;
+                case 's': sampler.samples[1]->active = 1; sampler.samples[1]->snd_buffer_pos = 0.0f; break;
+                case 'd': sampler.samples[2]->active = 1; sampler.samples[2]->snd_buffer_pos = 0.0f; break;
+                case 'f': sampler.samples[3]->active = 1; sampler.samples[3]->snd_buffer_pos = 0.0f; break;
+                case 'g': sampler.samples[4]->active = 1; sampler.samples[4]->snd_buffer_pos = 0.0f; break;
+                case 'h': sampler.samples[5]->active = 1; sampler.samples[5]->snd_buffer_pos = 0.0f; break;
                 }
             }
-        }
-        else fprintf(stderr, "ERROR: Bad input method.\n");
+        #elif PYSOCK_INPUT
+            if (control_listen_fd >= 0)
+            {
+                control_socket_accept(control_listen_fd, &control_client_fd);
+                control_socket_poll(&control_client_fd, &sampler);
+            }
+        #else
+            fprintf(stderr, "ERROR : Unknown input method");
+            return 1;
+        #endif
 
-        if (control_listen_fd >= 0)
-        {
-            control_socket_accept(control_listen_fd, &control_client_fd);
-            control_socket_poll(&control_client_fd, &sampler);
-        }
-
-        
         /* Processing the samples into the sound buffer */
         for (uint32_t i = 0; i < alsa_buffer_size; i++)
             buffer[i] = process_sampler(&sampler);
@@ -140,12 +112,15 @@ int main(int argc, char *argv[])
             break;
         }
 
-        if (INPUT == KB)
+        #if KB_INPUT
             close_kb();
+        #endif
     }
 
-    if (control_client_fd >= 0) close(control_client_fd);
-    if (control_listen_fd >= 0) close(control_listen_fd);
+    #if PYSOCK_INPUT
+        if (control_client_fd >= 0) close(control_client_fd);
+        if (control_listen_fd >= 0) close(control_listen_fd);
+    #endif
 
     /* Close the ALSA PCM */
     snd_pcm_drain(pcm);

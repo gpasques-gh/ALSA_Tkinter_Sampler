@@ -1,4 +1,4 @@
-obj/
-bin/
+engine/obj/
+engine/bin/
 .git/
 python/__pycache__/
