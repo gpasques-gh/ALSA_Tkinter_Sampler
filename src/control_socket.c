@@ -121,11 +121,12 @@ void control_socket_poll(int *client_fd, sampler_t *sampler)
     ssize_t n = read(*client_fd, buf, sizeof(buf) - 1);
 
     if (n <= 0) {
-        if (n == 0 || (errno != EAGAIN && errno != EWOULDBLOCK)) {
+        if (n == 0 || (errno != EAGAIN && errno != EWOULDBLOCK)) 
+        {
             close(*client_fd);
             *client_fd = -1;
             fprintf(stderr, "control socket: GUI disconnected\n");
-            exit(EXIT_SUCCESS);
+            init_sampler(sampler);
         }
         return;
     }

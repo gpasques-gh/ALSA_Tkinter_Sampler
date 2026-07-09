@@ -53,7 +53,8 @@ int main(int argc, char *argv[])
 
     /* Initializing the MIDI input */
     snd_rawmidi_t *midi_in;
-    snd_rawmidi_open(&midi_in, NULL, "hw:4,0,0", SND_RAWMIDI_NONBLOCK);
+    if (INPUT == MIDI)
+        snd_rawmidi_open(&midi_in, NULL, "hw:4,0,0", SND_RAWMIDI_NONBLOCK);
 
     /* Initializing the sound buffer */
     uint32_t alsa_buffer_size = FRAMES * channels;

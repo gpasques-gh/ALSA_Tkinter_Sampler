@@ -55,11 +55,6 @@ int32_t process_sample(sample_t *sample);
 /* Initialize an empty sampler */
 uint8_t init_sampler(sampler_t *sampler);
 
-/* Add a sample to the sample array */
-uint8_t add_sample(
-    sampler_t   *sampler,
-    sample_t    *sample);
-
 /* Change to global pitch of the sampler */
 uint8_t change_global_pitch(
     sampler_t   *sampler,
