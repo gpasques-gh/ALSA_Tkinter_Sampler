@@ -1,3 +1,7 @@
+/*#####################################*/
+/* Main function of the sampler engine */
+/*#####################################*/
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <stdint.h>

@@ -1,3 +1,7 @@
+/*##########################################################################*/
+/* WAVE file loader and conversion to S34_LE sound format for sample mixing */
+/*##########################################################################*/
+
 #include "wav_loader.h"
 
 #include <stdio.h>

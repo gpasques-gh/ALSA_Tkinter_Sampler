@@ -1,3 +1,8 @@
+/*###########################################*/
+/* Keyboard interface for the sampler engine */
+/* Used mainly for testing purposes          */
+/*###########################################*/
+
 #include <stdio.h>
 #include <unistd.h>
 #include <termios.h>

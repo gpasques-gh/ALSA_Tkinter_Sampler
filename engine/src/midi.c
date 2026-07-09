@@ -1,3 +1,8 @@
+/*######################################################################*/
+/* WARNING : This is a legacy file using ALSA RAWMIDI interface         */
+/* MIDI communication is now done through the Python socket interface   */
+/*######################################################################*/
+
 #include <alsa/asoundlib.h>
 #include "defs.h"
 #include "sampler.h"

@@ -1,3 +1,8 @@
+/*##############################################################*/
+/* Sample playback and initialization handling                  */
+/* For the WAVE files loading and conversions, see wav_loader.c */
+/*##############################################################*/
+
 #include <string.h>
 #include <stdlib.h>
 #include <stdio.h>
