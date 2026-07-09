@@ -5,10 +5,10 @@ CC = gcc
 TARGET = sampler
 
 # Directories
-SRC_DIR = src
-INC_DIR = include
-BIN_DIR = bin
-OBJ_DIR = obj
+SRC_DIR = engine/src
+INC_DIR = engine/include
+BIN_DIR = engine/bin
+OBJ_DIR = engine/obj
 
 # Files
 SRCS = $(wildcard $(SRC_DIR)/*.c)

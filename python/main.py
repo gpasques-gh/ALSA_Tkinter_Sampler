@@ -24,7 +24,7 @@ def keep_alive():
     root.after(100, keep_alive)
 
 # Launching the C program
-os.system("./bin/sampler 1>/dev/null 2>&1 &")
+os.system("./engine/bin/sampler 1>/dev/null 2>&1 &")
 
 # Making the relay from the AF_INET socket to the UNIX socket 
 # (useful to run the program on Windows with WSL)
