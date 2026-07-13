@@ -24,7 +24,7 @@ def keep_alive():
     root.after(100, keep_alive)
 
 # Launching the C program
-os.system("./engine/bin/sampler 1>/dev/null 2>&1 &")
+os.system("./engine/bin/sampler &")
 
 # Making the relay from the AF_INET socket to the UNIX socket 
 # (useful to run the program on Windows with WSL)
@@ -41,6 +41,8 @@ client.add_sample("snare", "audio_files/snare.wav")
 client.add_sample("hat", "audio_files/hat.wav")
 client.add_sample("guitar", "audio_files/guitar.wav")
 client.add_sample("bass", "audio_files/bass.wav")
+
+client.chop_sample("guitar", 5000, 15000)
 
 # Creating the Tkinter window
 root = tk.Tk()

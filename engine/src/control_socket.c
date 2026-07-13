@@ -84,17 +84,55 @@ static void handle_gui_command(char *line, sampler_t *sampler,
         if (idx < 0 || idx >= sampler->sample_count) return;
 
         sample_t *s = sampler->samples[idx];
-        s->snd_buffer_pos = 0.0f;
+        s->snd_buffer_pos = s->buffer_start_pos;
         s->velocity = (uint8_t) velocity;
         s->active = 1;
-    } 
+    }
+    else if (strcmp(verb, "TRIGGER_NAME") == 0)
+    {
+        int velocity = 127;
+        char sample_name[256];
+        if (sscanf(line, "%*s %255s %d", &sample_name, &velocity) != 2) return;
+        uint8_t idx = get_sample_idx(sampler, sample_name);
+        if (idx == -1) return;
+        sample_t *s = sampler->samples[idx];
+        if (!s) return;
+        s->snd_buffer_pos = s->buffer_start_pos;
+        s->velocity = (uint8_t) velocity;
+        s->active = 1;
+    }
     else if (strcmp(verb, "SET_PITCH") == 0) 
     {
         float fval = 1.0f;
         if (sscanf(line, "%*s %d %f", &idx, &fval) != 2) return;
         if (idx < 0 || idx >= sampler->sample_count) return;
-        sampler->samples[idx]->pitch += fval;
-    } 
+        sample_t *s = sampler->samples[idx];
+        s->pitch += fval;
+        if (s->pitch < 0.0f) s->pitch = 0.0f;
+    }
+    else if (strcmp(verb, "SET_PITCH_NAME") == 0)
+    {
+        float fval = 1.0f;
+        char sample_name[256];
+        if (sscanf(line, "%*s %255s %f", &sample_name, &fval) != 2) return;
+        uint8_t idx = get_sample_idx(sampler, sample_name);
+        if (idx == -1) return;
+        sample_t *s = sampler->samples[idx];
+        if (!s) return;
+        s->pitch += fval;
+        if (s->pitch < 0.0f) s->pitch = 0.0f;
+    }
+    else if (strcmp(verb, "CHOP_NAME") == 0)
+    {
+        uint32_t start_pos, end_pos;
+        char sample_name[256];
+        sscanf(line, "%*s %255s %d %d", &sample_name, &start_pos, &end_pos);
+        uint8_t idx = get_sample_idx(sampler, sample_name);
+        if (idx == -1) return;
+        sample_t *s = sampler->samples[idx];
+        if (!s) return;
+        if (chop_sample(s, start_pos, end_pos)) return;
+    }
     else if (strcmp(verb, "STATUS") == 0) 
     {
         size_t off = 0;
@@ -111,8 +149,10 @@ static void handle_gui_command(char *line, sampler_t *sampler,
         char file_name[256];
         char sample_name[256];
         if (sscanf(line, "%*s %255s %255s", &sample_name, &file_name) != 2) return;
+        //for (int i = 0; i < sampler->sample_count; i++)
+        //    if (strcmp(sample_name, sampler->samples[i]->sample_name) == 0) return;
         uint8_t res = init_sample(sampler->samples[sampler->sample_count], sample_name, file_name);
-        if (!res) sampler->sample_count++;
+        sampler->sample_count++;
     }
     /* unrecognized verbs are silently ignored */
 }

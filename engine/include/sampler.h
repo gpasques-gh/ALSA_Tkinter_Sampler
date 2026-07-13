@@ -14,13 +14,15 @@
 */
 typedef struct
 {
-    const char  *sample_name;      /* Name of the sample */
-    const char  *file_name;        /* Filename of the sample file */
+    char        sample_name[256];      /* Name of the sample */
+    char        file_name[256];        /* Filename of the sample file */
     wav_audio_t *audio_data;        /* Audio data */
     float       snd_buffer_pos;     /* Current index of the sound buffer */
     float       pitch;              /* MIDI pitch (from 0 to 127), base sample pitch being 24 (C3) */
     uint8_t     active;             /* If the sound is to be played or not */
     uint8_t     velocity;           /* Velocity of the MIDI note */
+    uint32_t    buffer_start_pos;   /* Start index of the buffer for sample chopping */
+    uint32_t    buffer_end_pos;     /* End index of the buffer for sample chopping */
 } sample_t;
 
 /* SAMPLER STRUCTURE */
@@ -45,7 +47,12 @@ uint8_t init_sample(
 /* Change a sample pitch */
 uint8_t change_sample_pitch(
     sample_t    *sample,
-    uint8_t     picth); 
+    uint8_t     picth);
+
+uint8_t chop_sample(
+    sample_t *sample,
+    uint32_t start_pos,
+    uint32_t end_pos);
 
 /* Read a sample into the ALSA sound buffer */
 int32_t process_sample(sample_t *sample);
@@ -62,5 +69,7 @@ uint8_t change_global_pitch(
 
 /* Read the sampler into the ALSA sound buffer */
 int32_t process_sampler(sampler_t   *sampler);
+
+uint8_t get_sample_idx(sampler_t *sampler, const char *sample_name);
 
 #endif 

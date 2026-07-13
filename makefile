@@ -52,6 +52,11 @@ $(BIN_DIR):
 $(OBJ_DIR):
 	mkdir -p $(OBJ_DIR)
 
+$(OBJ_DIR)/%.i: $(SRC_DIR)/%.c | $(OBJ_DIR)
+	$(CC) $(CFLAGS) -E $< -o $@
+
+PREPROCESSED = $(SRCS:$(SRC_DIR)/%.c=$(OBJ_DIR)/%.i)
+
 # Clean
 clean:
 	rm -rf $(OBJ_DIR) $(BIN_DIR)/$(TARGET)
@@ -64,3 +69,5 @@ run:
 
 -include $(DEPS)
 .PHONY: all clean re
+preprocess: $(PREPROCESSED)
+

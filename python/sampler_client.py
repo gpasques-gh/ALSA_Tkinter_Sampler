@@ -9,11 +9,20 @@ class SamplerClient:
     def trigger(self, idx, velocity=127):
         self.sock.sendall(f"TRIGGER {idx} {velocity}\n".encode())
 
+    def trigger_name(self, sample_name, velocity=127):
+        self.sock.sendall(f"TRIGGER_NAME {sample_name} {velocity}\n".encode())
+
     def set_pitch(self, idx, pitch):
         self.sock.sendall(f"SET_PITCH {idx} {pitch}\n".encode())
 
+    def set_pitch_name(self, sample_name:str, pitch:float):
+        self.sock.sendall(f"SET_PITCH_NAME {sample_name} {pitch}\n".encode())
+
     def add_sample(self, sample_name, file_name):
         self.sock.sendall(f"ADD_SAMPLE {sample_name} {file_name}\n".encode())
+
+    def chop_sample(self, sample_name:str, start_pos:int, end_pos:int):
+        self.sock.sendall(f"CHOP_NAME {sample_name} {start_pos} {end_pos}\n".encode())
 
     def status(self):
         self.sock.sendall(b"STATUS\n")

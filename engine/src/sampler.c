@@ -34,13 +34,7 @@ uint8_t init_sample(
 
     /* Getting the sample informations */
     sample->audio_data = malloc(sizeof(wav_audio_t));
-    sample->file_name       = file_name;
-    sample->sample_name     = sample_name;
-    sample->snd_buffer_pos  = 0.0f;
-    sample->pitch           = 1.0f;
-    sample->active          = 0;
-    sample->velocity        = 100;
-
+    
     /* Loading the WAV file */
     wav_err_t err = wav_load_as_s32(file_name, sample->audio_data);
 
@@ -51,6 +45,31 @@ uint8_t init_sample(
         return 1;
     }
 
+
+    strcpy(sample->sample_name, sample_name);
+    strcpy(sample->file_name, file_name);
+    sample->snd_buffer_pos      = 0.0f;
+    sample->pitch               = 1.0f;
+    sample->active              = 0;
+    sample->velocity            = 100;
+    sample->buffer_start_pos    = 0;
+    sample->buffer_end_pos      = sample->audio_data->num_frames;
+
+    return 0;
+}
+
+uint8_t chop_sample(
+    sample_t *sample,
+    uint32_t start_pos,
+    uint32_t end_pos)
+{
+    if (!sample) return 1;
+    if (!sample->audio_data) return 1;
+    if (start_pos > end_pos                         ||
+        start_pos >= sample->audio_data->num_frames ||
+        end_pos >= sample->audio_data->num_frames) return 1;
+    sample->buffer_start_pos    = start_pos;
+    sample->buffer_end_pos      = end_pos;
     return 0;
 }
 
@@ -62,7 +81,7 @@ int32_t process_sample(sample_t *sample)
         return 0;
 
     /* Getting the number of frames and the number of channels from the wav_audio_t */
-    uint32_t num_frames     = sample->audio_data->num_frames;
+    uint32_t num_frames     = sample->buffer_end_pos;
     uint16_t num_channels   = sample->audio_data->num_channels;
 
     /* If we finished the buffer */
@@ -70,7 +89,7 @@ int32_t process_sample(sample_t *sample)
     {
         /* Sample go inactive */
         sample->active = 0;
-        sample->snd_buffer_pos = 0.0f;
+        sample->snd_buffer_pos = (float) sample->buffer_start_pos;
         return 0;
     }
 
@@ -140,4 +159,23 @@ int32_t process_sampler(sampler_t *sampler)
     CLIP_MIN(snd_sample, INT32_MIN);
 
     return (int32_t) snd_sample;
+}
+
+uint8_t get_sample_idx(sampler_t *sampler, const char *sample_name)
+{
+    if (!sampler) return -1;
+    if (!sampler->samples) return -1;
+    for (int i = 0; i < sampler->sample_count; i++)
+    {
+        sample_t *s = sampler->samples[i];
+        
+        if (!s) return -1;
+        if (strcmp(s->sample_name, sample_name) == 0)
+        {
+            //fprintf(stderr, "%s : %s : %s", s->file_name, s->sample_name, sample_name);
+            return i;
+        }
+            
+    }
+    return -1;
 }
